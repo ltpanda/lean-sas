@@ -31,7 +31,7 @@ AV.Cloud.define('hello', function(request, response) {
 
 // 	var query = new AV.Query('Reports');
 // 	var pointPatient = AV.Object.createWithoutData('Patients', patientId);
-// 	query.equalTo("idPatient",pointPatient); 
+// 	query.equalTo("idPatient",pointPatient);
 // 	query.find().then(function (reports) {
 // 	    for(var i = 0; i < len;i++){
 // 	        var obj = reports[i];
@@ -116,7 +116,7 @@ AV.Cloud.define('boundDevice', function(request, response) {
 			device.set('versionNO',versionNO);
 			device.set('romVersion',romVersion);
 
-	        device.save().then(function(deviceAfter) { 
+	        device.save().then(function(deviceAfter) {
 
 				var queryPatient = new AV.Query("Device");
 				queryPatient.equalTo('idPatient',pointPatient);
@@ -159,7 +159,7 @@ AV.Cloud.define('boundDevice', function(request, response) {
 			dev[0].set('workStatus',workStatus);
 			dev[0].set('versionNO',versionNO);
 			dev[0].set('romVersion',romVersion);
-			
+
 			dev[0].save().then(function(newDev){
 
 				var queryPatient = new AV.Query("Device");
@@ -232,12 +232,13 @@ AV.Cloud.define('updateDevice', function(request, response) {
 		    device.set('localIP',localIP);
 		    device.set('wifiName',wifiName);
 
-	        device.save().then(function(device) { 
+	        device.save().then(function(device) {
 	           	response.success({
 		            "objectId" : device.id,
 		            "rawDataUpload" : device.get('rawDataUpload'),
 		            "idPatient" : device.get('idPatient'),
-		            "period" : device.get('period')
+		            "period" : device.get('period'),
+					"ledOnTime" : device.get('ledOnTime')
 		        });
 	        }, function(err) {
 	            // 失败之后执行其他逻辑
@@ -285,7 +286,7 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 			if(listPatient.length != 1){
 				console.log("RquestDoctor cant find patient");
 				for (var i = 0; i < listPatient.length; ++i) {
-					console.log(JSON.stringify(listPatient[i])); 
+					console.log(JSON.stringify(listPatient[i]));
 				}
 				response.error("cant find patient");
 				return;
@@ -368,7 +369,7 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 					}
 				});
 			}
-		}, 
+		},
 		error: function(e){
 			console.log(JSON.stringify(e));
 			response.error(e);
@@ -404,7 +405,7 @@ AV.Cloud.define('WXLogin', function(request, response) {
 	    var query = new AV.Query('Patients');
 	    query.equalTo('user', user);
 	    query.find().then(function(results) {
-	        
+
 	        if(results.length < 1){
 
 	        		user.set('WXOpenId',openId);
@@ -415,23 +416,23 @@ AV.Cloud.define('WXLogin', function(request, response) {
 	                // patient.set('objectId',user.id);
 	                patient.set('user',user);
 	                patient.set('name',user.get('username'));
-	                
+
 	                // 新建一个 ACL 实例
 	                // var acl = new AV.ACL();
 	                // acl.setPublicReadAccess(true);
 	                // acl.setWriteAccess(user,true);
 	                //   // 将 ACL 实例赋予 patient 对象
 	                // patient.setACL(acl);
-	                
+
 	                patient.save().then(function(patient) {
 	                    // 成功保存之后，执行其他逻辑.
-	                    
+
 	                    data['profileId'] = patient.id;
 	                    data['user'] = user;
 	                    data['sessionToken'] = user._sessionToken;
 	                    data['userId'] = user.id;
 	                    data['name'] = user.get('name');
-	                    
+
 	                    response.success(data);
 	                }, function(err) {
 	                    // 失败之后执行其他逻辑
@@ -441,19 +442,19 @@ AV.Cloud.define('WXLogin', function(request, response) {
 	                });
 	        }else{
 	            var profile = results[0];
-	            
+
 	            data['userId'] = user.id;
 	            data['profileId'] = profile.id;
 	            data['sessionToken'] = user._sessionToken;
 	            data['user'] = user;
                 data['name'] = profile.get('name');
 	            //...
-	            response.success(data);   
+	            response.success(data);
 	        }
 	    }, function(error) {
 	        console.log('Error: ' + error.code + ' ' + error.message);
 	        response.error(error);
-	        
+
 	    });
 
 	}, function(error) {
@@ -480,41 +481,41 @@ AV.Cloud.define('login', function(request, response) {
 	    var query = new AV.Query('Patients');
 	    query.equalTo('user', user);
 	    query.find().then(function(results) {
-	        
+
 	        if(results.length > 0){
 	                var profile = results[0];
-	                
+
 	                data['userId'] = user.id;
 	                data['profileId'] = profile.id;
 	                data['sessionToken'] = user._sessionToken;
 	                data['user'] = user;
 	                data['name'] = profile.get('name');
 	                //...
-	                response.success(data);            
+	                response.success(data);
 	        }else{
 	                var Patient = AV.Object.extend('Patients');
 	                var patient = new Patient();
 	                patient.set('user',user)
 	                patient.set('name',user.get('username'));
-	                
+
 	                 // 新建一个 ACL 实例
 	                var acl = new AV.ACL();
 	                acl.setPublicReadAccess(true);
 	                acl.setWriteAccess(user,true);
 	                  // 将 ACL 实例赋予 patient 对象
 	                patient.setACL(acl);
-	            
+
 	                patient.save().then(function(patient) {
-	                    
+
 	                    data['userId'] = user.id;
 	                    data['profileId'] = patient.id;
 	                    data['sessionToken'] = user._sessionToken;
 	                    data['user'] = user;
 	                    data['name'] = user.get('username');
 	                    //...
-	                    response.success(data); 
+	                    response.success(data);
 	                }, function(err) {
-	                    
+
 	                    console.log('Failed to create new object, with error message: ' + err.message);
 	                    response.error(err);
 	                });
@@ -523,7 +524,7 @@ AV.Cloud.define('login', function(request, response) {
 	    }, function(error) {
 	        console.log('Error: ' + error.code + ' ' + error.message);
 	    });
-	  
+
 	}, function(err) {
 	  //登录失败
 	  response.error(err);
@@ -533,19 +534,19 @@ AV.Cloud.define('login', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-01T15:07:50+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('phoneCheckCode', function(request, response) {
 
 	var phoneNumber = request.params.phoneNumber;
 
 	var query = new AV.Query(AV.User);
-	query.equalTo('mobilePhoneNumber', phoneNumber); 
+	query.equalTo('mobilePhoneNumber', phoneNumber);
 	query.find().then(function(results) {
 	  if(results.length > 0){
 	      response.error('该手机号已被注册');
 	  }else{
-	     
+
 	    AV.Cloud.requestSmsCode(phoneNumber).then(function() {
 	      //发送成功
 	      response.success(phoneNumber);
@@ -553,7 +554,7 @@ AV.Cloud.define('phoneCheckCode', function(request, response) {
 	      //发送失败
 	        response.error(err);
 	    });
-	 
+
 	  }
 	}, function(err) {
 	  //发送失败
@@ -564,7 +565,7 @@ AV.Cloud.define('phoneCheckCode', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-01T15:07:50+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('register', function(request, response) {
 	//登录或者注册使用同一个接口
@@ -586,7 +587,7 @@ AV.Cloud.define('register', function(request, response) {
 	    var patient = new Patient();
 	    patient.set('user',user)
 	    patient.set('name',user.get('username'));
-	    
+
 	     // 新建一个 ACL 实例
 	    var acl = new AV.ACL();
 	    acl.setPublicReadAccess(true);
@@ -595,7 +596,7 @@ AV.Cloud.define('register', function(request, response) {
 	    patient.setACL(acl);
 
 	    patient.save().then(function(patient) {
-	        
+
             data['userId'] = user.id;
             data['profileId'] = patient.id;
             data['sessionToken'] = user._sessionToken;
@@ -604,11 +605,11 @@ AV.Cloud.define('register', function(request, response) {
             //...
             response.success(data);
 	    }, function(err) {
-	        
+
 	        console.log('Failed to create new object, with error message: ' + err.message);
 	        response.error(err);
 	    });
-	    
+
 	}, function(error) {
 	  // 失败
 	  console.log(error);
@@ -619,7 +620,7 @@ AV.Cloud.define('register', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-01T15:07:50+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('boundWX', function(request, response) {
 
@@ -629,7 +630,7 @@ AV.Cloud.define('boundWX', function(request, response) {
 	var expires_in = request.params.expires_in;
 
 	var query = new AV.Query(AV.User);
-	query.equalTo('WXOpenId', openId); 
+	query.equalTo('WXOpenId', openId);
 	query.find().then(function(results) {
 	  if(results.length > 0){
 	      response.error('该微信已被其他账号绑定');
@@ -645,7 +646,7 @@ AV.Cloud.define('boundWX', function(request, response) {
 	            }).then(function(user) {
 	              //返回绑定后的用户
 	              console.log(user);
-	              
+
 	              user.set('WXOpenId', openId);
 	              user.save().then(function (user){
 	                response.success(user);
@@ -659,7 +660,7 @@ AV.Cloud.define('boundWX', function(request, response) {
 	        }, function (error) {
 	          // Login failed.
 	            response.error(error);
-	        });     
+	        });
 	  }
 	}, function(err) {
 	  //发送失败
@@ -674,7 +675,7 @@ AV.Cloud.define('boundWX', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-01T15:07:50+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('boundPhone', function(request, response) {
 	var sessionToken = request.params.token;
@@ -682,14 +683,14 @@ AV.Cloud.define('boundPhone', function(request, response) {
 	var password = request.params.password;
 
 	var query = new AV.Query(AV.User);
-	query.equalTo('mobilePhoneNumber', phoneNumber); 
+	query.equalTo('mobilePhoneNumber', phoneNumber);
 	query.find().then(function(results) {
 	  if(results.length > 0){
 	      response.error('该手机号已绑定其他账号');
 	  }else{
 	        AV.User.become(sessionToken).then(function (user) {
 	          // The current user is changed.
-	          
+
 	            user.set('mobilePhoneNumber',phoneNumber);
 	            user.set('password',password);
 	            console.log('password: ' + password);
@@ -702,7 +703,7 @@ AV.Cloud.define('boundPhone', function(request, response) {
 	              }, function (error){
 	                response.error(error);
 	            });
-	        
+
 	            }, function (error){
 	                response.error(error);
 	            });
@@ -722,7 +723,7 @@ AV.Cloud.define('boundPhone', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-01T15:07:50+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('confirmCheckByDoc', function(request, response) {
 	console.log("confirmCheckByDoc begin");
@@ -814,13 +815,13 @@ AV.Cloud.define('confirmCheckByDoc', function(request, response) {
 		response.error(e);
 		return;
 	})
-	
+
 });
 
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-02T18:23:03+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('RefuseCheckByUser', function(request, response) {
 	console.log("RefuseCheckByUser begin");
@@ -900,7 +901,7 @@ AV.Cloud.define('RefuseCheckByUser', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-02T18:23:03+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('CloseCheckByDoc', function(request, response) {
 	console.log("CloseCheckByDoc begin");
@@ -980,7 +981,7 @@ AV.Cloud.define('CloseCheckByDoc', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-02T18:23:03+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('CloseCheckByUser', function(request, response) {
 	console.log("CloseCheckByUser begin");
@@ -1216,7 +1217,7 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 			console.log(JSON.stringify(e));
 			response.error(e);
 		});
-		
+
 
 	},
 	function(e){
@@ -1228,7 +1229,7 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-02T18:23:03+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('CommentByUser', function(request, response) {
 	console.log("CommentByUser begin");
@@ -1308,7 +1309,7 @@ AV.Cloud.define('CommentByUser', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-02T18:23:03+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('CommentByDoctor', function(request, response) {
 	console.log("CommentByDoctor begin");
@@ -1356,7 +1357,7 @@ AV.Cloud.define('CommentByDoctor', function(request, response) {
 		if(request.params.score){
 			check.set('ScorePatient', request.params.score);
 		}
-		
+
 		check.save().then(function(check){
 			var history = AV.Object.new('ReportCheckHistory');
 			history.set('Note', request.params.comment);
@@ -1391,7 +1392,7 @@ AV.Cloud.define('CommentByDoctor', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-27T14:46:31+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('_receiversOffline', function(request, response) {
     var params = request.params;
@@ -1409,7 +1410,7 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 					patientId = listChecks[0].get('Patient').id;
 				}
 
- 				
+
 				if(listChecks[0].get('Patient').get('user').get('objectId') == params.fromPeer){
 					sendName = listChecks[0].get('Patient').get('name');
 				}
@@ -1451,7 +1452,7 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 /**
  * @Author   xiaoqiang
  * @DateTime 2016-07-04T12:27:31+0800
- * @description 
+ * @description
  */
 AV.Cloud.define('imgClipper', function(request, response) {
 	var params = request.params;
@@ -1468,7 +1469,7 @@ AV.Cloud.define('imgClipper', function(request, response) {
 	http.get(
 	  url,
 	  function (res) {
-	    var bufList = [];    
+	    var bufList = [];
 	    res.on('data', function (c) {
 	      bufList.push(c);
 	    });
@@ -1495,7 +1496,7 @@ AV.Cloud.define('imgClipper', function(request, response) {
 		  response.success({url : base64Str})
 	    })
 	  }
-	);	
+	);
 });
 
 /**
@@ -1517,7 +1518,7 @@ AV.Cloud.define('imgClipper', function(request, response) {
  * @param {string} reportDepend [description]
  *
  * @return {object} [description]
- 
+
 function createFindReportInfo(entityType, entityDepend, entityFindError, reportDepend){
 	var info = {};
 	info.entityType = entityType;
